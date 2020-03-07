@@ -11,31 +11,31 @@ import SwiftUI
 import Combine
 import UIKit
 
-extension GithubItem :Identifiable {}
+extension GithubItem: Identifiable {}
 
 final class RepositoriesViewModel: ObservableObject {
     
     // MARK: - Properties
-    @Published var repositoryName = "" {
-        didSet {
-            isSearching = true
-        }
-    }
+    @Published var repositoryName = ""
     @Published var isSearching = false
-    @Published private (set) var repositories: [GithubItem] = [] {
+    
+    @Published var repositories: [GithubItem] = [] {
         didSet {
             isSearching = false
         }
     }
-    
+
     var pageCount = 1
     
     // MARK: Private Properties
-    private let service: GithubServiceType
+    private let service: GithubServiceType = GithubService()
     private var subscriptions = Set<AnyCancellable>()
 
-    init(service: GithubServiceType = GithubService()) {
-        self.service = service
+    var searchQueryEmpty: Bool {
+        return repositoryName.isEmpty
+    }
+    
+    init() {
         searchRepositories()
     }
     
@@ -55,12 +55,22 @@ final class RepositoriesViewModel: ObservableObject {
     // MARK: - Functions
     func searchRepositories(page: Int = 1) {
         $repositoryName
-            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+            .map({ $0.localizedLowercase })
+            .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .removeDuplicates()
-            .filter { !$0.isEmpty && $0.first != " " }
-            .compactMap({ GetRepositoriesRequestModel(query: String($0), page: page) })
+            .map({ [weak self] (text) in
+                if text.isEmpty {
+                    self?.isSearching = false
+                } else {
+                    self?.isSearching = true                    
+                }
+                return text
+            })
+            .filter { !$0.isEmpty }
+            .compactMap({ GetRepositoriesRequestModel(query: $0, page: page) })
             .flatMap({ [unowned self] in self.fetchRepositories(request: $0) })
             .replaceError(with: [])
+            .receive(on: DispatchQueue.main)
             .assign(to: \.repositories, on: self)
             .store(in: &subscriptions)
     }
@@ -68,8 +78,7 @@ final class RepositoriesViewModel: ObservableObject {
     func fetchRepositories(request: GetRepositoriesRequestModel) -> AnyPublisher<[GithubItem], Never> {
         service.getRepositories(request: request)
             .map({ $0.items })
-            .catch({ _ in Empty() })
-            .receive(on: DispatchQueue.main)
+            .replaceError(with: [])
             .eraseToAnyPublisher()
     }
     

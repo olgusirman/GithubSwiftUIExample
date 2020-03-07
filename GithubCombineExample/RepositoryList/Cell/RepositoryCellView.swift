@@ -11,17 +11,14 @@ import GithubService
 
 struct RepositoryCellView: View {
     
-    @ObservedObject var viewModel: RepositoryCellViewModel
-    
-    init(viewModel: RepositoryCellViewModel) {
-        self.viewModel = viewModel
-    }
-    
+    var item: GithubItem
+
     var body: some View {
         HStack {
-            UserImage(image: Image(uiImage: viewModel.userImage ?? UIImage(systemName: "person")!))
-            Text(viewModel.item.fullName)
-                    .font(.body)
+            UserImage(imageUrl: item.owner.avatarURL)
+            Text(item.fullName)
+                .font(.body)
+                .lineLimit(0)
             Spacer()
         }
     }
@@ -33,6 +30,6 @@ struct RepositoryCellView_Previews: PreviewProvider {
     static let item = GithubItem(id: 0, fullName: "FullName", owner: owner)
     
     static var previews: some View {
-        RepositoryCellView(viewModel: RepositoryCellViewModel(item: item))
+        RepositoryCellView(item: item)
     }
 }

@@ -25,6 +25,7 @@ public struct GithubModel: Codable {
 public struct GithubItem: Codable {
     
     public static let empty = GithubItem(id: 0, fullName: "", owner: GithubOwner.empty)
+    public static let sample = GithubItem(id: 100, fullName: "TestItem", owner: GithubOwner.sample)
     
     public let id: Int
     public let fullName: String
@@ -61,6 +62,7 @@ public struct GithubItem: Codable {
 public struct GithubOwner: Codable, Hashable {
     
     public static let empty = GithubOwner(id: 0, login: "", avatarURL: "")
+    public static let sample = GithubOwner(id: 100, login: "loginField", avatarURL: "")
     
     public let login: String
     public let id: Int

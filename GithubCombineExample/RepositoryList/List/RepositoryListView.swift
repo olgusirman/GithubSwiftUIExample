@@ -10,27 +10,38 @@ import SwiftUI
 
 struct RepositoryListView: View {
     
-    @ObservedObject var viewModel: RepositoriesViewModel
-    
-    init(viewModel: RepositoriesViewModel = RepositoriesViewModel()) {
-        self.viewModel = viewModel
-    }
+    @ObservedObject var viewModel = RepositoriesViewModel()
+    @State private var presentUserPage = false
     
     var body: some View {
-        return NavigationView {
+        NavigationView {
             VStack {
                 ZStack {
                     SearchBar(text: $viewModel.repositoryName)
-                    ActivityIndicatorView(isRefreshing: $viewModel.isSearching).offset(x: 150, y: 0)
+                    ActivityIndicatorView(isRefreshing: $viewModel.isSearching)
                 }
                 List {
                     ForEach(viewModel.repositories, id: \.id) { repository in
-                        RepositoryCellView(viewModel: RepositoryCellViewModel(item: repository))
+                        NavigationLink(destination: RepositoryDetailView(item: repository)) {
+                            RepositoryCellView(item: repository)
+                        }
                     }
-                }
-                Spacer()
+                }.resignKeyboardOnDragGesture()
+                    .navigationBarTitle("Repositories")
+                    .navigationBarItems( trailing:
+                        Button(action: { self.presentProfile() }) {
+                            Image(systemName: "person")
+                        }
+                )
+                
+            }.sheet(isPresented: $presentUserPage) {
+                UserView()
             }
         }
+    }
+    
+    private func presentProfile() {
+        self.presentUserPage.toggle()
     }
 }
 
