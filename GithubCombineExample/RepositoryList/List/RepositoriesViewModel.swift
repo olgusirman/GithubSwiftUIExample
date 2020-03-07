@@ -62,7 +62,7 @@ final class RepositoriesViewModel: ObservableObject {
                 if text.isEmpty {
                     self?.isSearching = false
                 } else {
-                    self?.isSearching = true                    
+                    self?.isSearching = true
                 }
                 return text
             })
