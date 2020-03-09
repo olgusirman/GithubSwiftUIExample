@@ -8,7 +8,6 @@
 
 import UIKit
 import SwiftUI
-import GithubService
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -17,8 +16,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
-        let viewModel = RepositoriesViewModel()
-        let contentView = RepositoryListView(viewModel: viewModel)
+        let userManager = UserManager()
+        userManager.configure()
+        
+        let service: GithubServiceType = GithubService()
+        let viewModel = RepositoriesViewModel(service: service)
+        let contentView = RepositoryListView(viewModel: viewModel).environmentObject(userManager)
         
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)

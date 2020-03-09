@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import GithubService
 
 struct RepositoryDetailView: View {
     

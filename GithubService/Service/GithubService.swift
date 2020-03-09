@@ -10,7 +10,8 @@ import Foundation
 import Combine
 
 public protocol GithubServiceType {
-    func getRepositories( request: GetRepositoriesRequestModel) -> AnyPublisher <GithubModel, GithubService.Error>
+    func getRepositories(request: GetRepositoriesRequestModel) -> AnyPublisher <GithubModel, GithubService.Error>
+    func getUserData(token: String) -> AnyPublisher<User, GithubService.Error>
 }
 
 final public class GithubService {
@@ -54,12 +55,23 @@ final public class GithubService {
     private enum EndPoint {
         
         case repositories(request: GetRepositoriesRequestModel)
+        case getUserData
         
         var url: URL {
             switch self {
             case .repositories(let request):
                 return prepareGetRequestUrlComponenets(request: request).url!
+            case .getUserData:
+                return baseUserComponent.url!
             }
+        }
+        
+        private var baseUserComponent: URLComponents {
+            var components = URLComponents()
+            components.scheme = "https"
+            components.host = "api.github.com"
+            components.path = "/user"
+            return components
         }
         
         private var baseSearchComponent: URLComponents {
@@ -85,8 +97,8 @@ final public class GithubService {
 
 extension GithubService: GithubServiceType {
     
-    public func getRepositories( request: GetRepositoriesRequestModel) -> AnyPublisher <GithubModel, GithubService.Error> {
-        return session.dataTaskPublisher(for: GithubService.EndPoint.repositories(request: request).url)
+    private func executeRequest<T: Decodable>(urlRequest: URLRequest) -> AnyPublisher<T, GithubService.Error> {
+        return session.dataTaskPublisher(for: urlRequest)
             .receive(on: apiQueue)
             .tryMap { data, response -> Data in
                 let httpResponse = response as? HTTPURLResponse
@@ -100,11 +112,43 @@ extension GithubService: GithubServiceType {
                     throw GithubService.Error.unknownNetwork
                 }
         }
-        .decode(type: GithubModel.self, decoder: decoder)
+        .decode(type: T.self, decoder: decoder)
         .mapError { error in
             switch error {
             case is URLError:
-                return Error.addressUnreachable(GithubService.EndPoint.repositories(request: request).url)
+                return GithubService.Error.addressUnreachable(urlRequest.url!)
+            case is DecodingError:
+                return GithubService.Error.decoding
+            default:
+                if let error = error as? GithubService.Error {
+                    return error
+                }
+                return GithubService.Error.invalidResponse
+            }
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    private func executeRequest<T: Decodable>(url: URL) -> AnyPublisher<T, GithubService.Error> {
+        return session.dataTaskPublisher(for: url)
+            .receive(on: apiQueue)
+            .tryMap { data, response -> Data in
+                let httpResponse = response as? HTTPURLResponse
+                if let httpResponse = httpResponse, 200..<399 ~= httpResponse.statusCode {
+                    return data
+                }
+                else if let httpResponse = httpResponse {
+                    let nserror = NSError(domain: httpResponse.description, code: httpResponse.statusCode, userInfo: httpResponse.allHeaderFields as? [String : Any])
+                    throw GithubService.Error.networkResponse(nserror)
+                }     else {
+                    throw GithubService.Error.unknownNetwork
+                }
+        }
+        .decode(type: T.self, decoder: decoder)
+        .mapError { error in
+            switch error {
+            case is URLError:
+                return Error.addressUnreachable(url)
             case is DecodingError:
                 return Error.decoding
             default:
@@ -113,6 +157,18 @@ extension GithubService: GithubServiceType {
         }
         .eraseToAnyPublisher()
     }
+    
+    public func getRepositories( request: GetRepositoriesRequestModel) -> AnyPublisher <GithubModel, GithubService.Error> {
+        return executeRequest(url: GithubService.EndPoint.repositories(request: request).url)
+    }
+    
+    public func getUserData(token: String) -> AnyPublisher<User, GithubService.Error> {
+        var request = URLRequest(url: GithubService.EndPoint.getUserData.url)
+        request.addValue("Authorization", forHTTPHeaderField: "token \(token)")
+        request.addValue("Accept", forHTTPHeaderField: "application/json")
+        return executeRequest(urlRequest: request)
+    }
+    
 }
 
 extension Publisher {

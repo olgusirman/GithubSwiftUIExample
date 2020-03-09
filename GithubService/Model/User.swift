@@ -9,7 +9,7 @@
 import Foundation
 
 // MARK: - User
-public struct User: Codable {
+public struct User: Codable, Equatable, Hashable {
     
     public static let empty = User(id: 0, name: "")
     public static let sample = User(id: Int.random(in: 1...100), name: "Sample User")

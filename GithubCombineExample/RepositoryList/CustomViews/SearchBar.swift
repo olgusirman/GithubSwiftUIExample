@@ -30,7 +30,6 @@ struct SearchBar: UIViewRepresentable {
             text = searchBar.text ?? ""
             searchBar.resignFirstResponder()
         }
-        
     }
     
     func makeCoordinator() -> SearchBar.Cordinator {
@@ -39,6 +38,8 @@ struct SearchBar: UIViewRepresentable {
     
     func makeUIView(context: UIViewRepresentableContext<SearchBar>) -> UISearchBar {
         let searchBar = UISearchBar(frame: .zero)
+        searchBar.placeholder = "Search Repository"
+        searchBar.searchBarStyle = .minimal
         searchBar.delegate = context.coordinator
         return searchBar
     }
