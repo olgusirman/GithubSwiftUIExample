@@ -25,6 +25,8 @@
 		0537E50423DCCB2C005B87DC /* RepositoriesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0537E50323DCCB2C005B87DC /* RepositoriesViewModel.swift */; };
 		0537E50623DCCDBB005B87DC /* RepositoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0537E50523DCCDBB005B87DC /* RepositoryListView.swift */; };
 		0537E50A23DF891C005B87DC /* RepositoryCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0537E50923DF891C005B87DC /* RepositoryCellView.swift */; };
+		05932BB62417C12200043162 /* CircleImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05932BB52417C12200043162 /* CircleImage.swift */; };
+		05932BB82417C2D500043162 /* ProfileDetailBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05932BB72417C2D500043162 /* ProfileDetailBackgroundView.swift */; };
 		05A529F82413ED4500FFB087 /* UserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A529F72413ED4500FFB087 /* UserViewModel.swift */; };
 		05A529FB2413F3BD00FFB087 /* HUDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A529FA2413F3BD00FFB087 /* HUDView.swift */; };
 		05A52A002414430F00FFB087 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 05A529FF2414430F00FFB087 /* KeychainSwift */; };
@@ -109,6 +111,8 @@
 		0537E50323DCCB2C005B87DC /* RepositoriesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepositoriesViewModel.swift; sourceTree = "<group>"; };
 		0537E50523DCCDBB005B87DC /* RepositoryListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepositoryListView.swift; sourceTree = "<group>"; };
 		0537E50923DF891C005B87DC /* RepositoryCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepositoryCellView.swift; sourceTree = "<group>"; };
+		05932BB52417C12200043162 /* CircleImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircleImage.swift; sourceTree = "<group>"; };
+		05932BB72417C2D500043162 /* ProfileDetailBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDetailBackgroundView.swift; sourceTree = "<group>"; };
 		05A529F72413ED4500FFB087 /* UserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserViewModel.swift; sourceTree = "<group>"; };
 		05A529FA2413F3BD00FFB087 /* HUDView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HUDView.swift; sourceTree = "<group>"; };
 		05A52A01241446C500FFB087 /* TokenManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenManager.swift; sourceTree = "<group>"; };
@@ -356,7 +360,9 @@
 		05F9742023EC90DA00C90227 /* RepositoryDetail */ = {
 			isa = PBXGroup;
 			children = (
+				05932BB52417C12200043162 /* CircleImage.swift */,
 				05F9742123EC90EF00C90227 /* RepositoryDetailView.swift */,
+				05932BB72417C2D500043162 /* ProfileDetailBackgroundView.swift */,
 			);
 			path = RepositoryDetail;
 			sourceTree = "<group>";
@@ -535,6 +541,7 @@
 				05F9741E23EBA3E600C90227 /* AcitivityIndicatorView.swift in Sources */,
 				05F9741923EB7B2000C90227 /* SearchBar.swift in Sources */,
 				05A52A042414516D00FFB087 /* UserManager.swift in Sources */,
+				05932BB62417C12200043162 /* CircleImage.swift in Sources */,
 				0532606A23DA006700C637F6 /* AppDelegate.swift in Sources */,
 				0532606C23DA006700C637F6 /* SceneDelegate.swift in Sources */,
 				0537E50623DCCDBB005B87DC /* RepositoryListView.swift in Sources */,
@@ -542,6 +549,7 @@
 				0531FD1F241288F100EC7245 /* LoginView.swift in Sources */,
 				0531FD2824129D6100EC7245 /* UserView.swift in Sources */,
 				05A529FB2413F3BD00FFB087 /* HUDView.swift in Sources */,
+				05932BB82417C2D500043162 /* ProfileDetailBackgroundView.swift in Sources */,
 				0537E50A23DF891C005B87DC /* RepositoryCellView.swift in Sources */,
 				05A529F82413ED4500FFB087 /* UserViewModel.swift in Sources */,
 				0531FD23241289A800EC7245 /* LoginViewModel.swift in Sources */,

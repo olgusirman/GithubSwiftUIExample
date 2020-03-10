@@ -24,6 +24,8 @@ final class RepositoriesViewModel: ObservableObject {
         }
     }
     
+    @Published var sortType: GetRepositoriesRequestModel.Sort = .stars
+    
     var isLastItemFetched = false
     
     // MARK: Private Properties
@@ -35,10 +37,12 @@ final class RepositoriesViewModel: ObservableObject {
             debugPrint("pageCount is set \(self.pageCount)")
         }
     }
+    private let debounceTime: Double = 0.4
     
     init(service: GithubServiceType = GithubService()) {
         self.service = service
         searchRepositories()
+        bindFilters()
     }
     
     enum GithubError: Error {
@@ -51,20 +55,18 @@ final class RepositoriesViewModel: ObservableObject {
             case .repoNotFound: return "Repo not found"
             }
         }
-        
     }
     
     // MARK: - Functions
     private func searchRepositories() {
-                
+        
         $repositoryName
             .map({ $0.localizedLowercase })
-            .debounce(for: 0.5, scheduler: DispatchQueue.main)
+            .debounce(for: .seconds(debounceTime), scheduler: DispatchQueue.main)
             .removeDuplicates()
             .filter { !$0.isEmpty }
             .map({ [weak self] (text) -> String in
-                self?.pageCount = 1
-                self?.isLastItemFetched = false
+                self?.cleanPage()
                 return text
             })
             .map({ [weak self] (text) in
@@ -75,12 +77,29 @@ final class RepositoriesViewModel: ObservableObject {
                 }
                 return text
             })
-            .compactMap({ [weak self] in GetRepositoriesRequestModel(query: $0, page: self?.pageCount ?? 1) })
+            .compactMap({ [weak self] in GetRepositoriesRequestModel(query: $0, page: self?.pageCount ?? 1, sort: self?.sortType ?? .stars) })
             .flatMap({ [unowned self] in self.fetchRepositories(request: $0) })
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
             .assign(to: \.repositories, on: self)
             .store(in: &subscriptions)
+    }
+    
+    private func bindFilters() {
+        
+        $sortType
+            .map({ [weak self] (sortType) -> GetRepositoriesRequestModel.Sort in
+                self?.cleanPage()
+                self?.isSearching = true
+                return sortType
+            })
+            .compactMap({ [weak self] in GetRepositoriesRequestModel(query: self?.repositoryName ?? "", page: self?.pageCount ?? 1, sort: $0) })
+            .flatMap({ [unowned self] in self.fetchRepositories(request: $0) })
+            .replaceError(with: [])
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.repositories, on: self)
+            .store(in: &subscriptions)
+        
     }
     
     private func fetchRepositories(request: GetRepositoriesRequestModel) -> AnyPublisher<[GithubItem], Never> {
@@ -93,7 +112,7 @@ final class RepositoriesViewModel: ObservableObject {
     func fetchMoreRepositories<Item: Identifiable>(_ item: Item) {
         
         let isFetchMoreThresHold = Just(repositories.isThresholdItem(offset: offset, item: item)).eraseToAnyPublisher()
-        //let isFetchMore = Just(repositories.isLastItem(item)).eraseToAnyPublisher()
+        //let isFetchMore = Just(repositories.isLastItem(item)).eraseToAnyPublisher() // use it for fetchin while the only last item appears
         
         let lastItemFetched = Just(isLastItemFetched).eraseToAnyPublisher()
         
@@ -107,7 +126,7 @@ final class RepositoriesViewModel: ObservableObject {
                 debugPrint("pageCount updated as \(self.pageCount)")
                 return Just(self.pageCount).eraseToAnyPublisher()
             })
-            .compactMap({ [unowned self] in GetRepositoriesRequestModel(query: self.repositoryName, page: $0)})
+            .compactMap({ [unowned self] in GetRepositoriesRequestModel(query: self.repositoryName, page: $0, sort: self.sortType)})
             .print()
             .flatMap({ [unowned self] in self.fetchRepositories(request: $0) })
             .replaceError(with: [])
@@ -124,6 +143,11 @@ final class RepositoriesViewModel: ObservableObject {
         }
         .assign(to: \.repositories, on: self)
         .store(in: &subscriptions)
+    }
+    
+    private func cleanPage() {
+        self.pageCount = 1
+        self.isLastItemFetched = false
     }
     
 }

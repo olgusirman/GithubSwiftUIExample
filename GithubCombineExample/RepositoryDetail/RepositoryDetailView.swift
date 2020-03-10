@@ -11,9 +11,23 @@ import SwiftUI
 struct RepositoryDetailView: View {
     
     var item: GithubItem
-
+    
     var body: some View {
-        Text(item.fullName)
+        VStack {
+            ProfileDetailImage(imageUrl: item.owner.avatarURL)
+            VStack(alignment: .leading) {
+                Text(item.fullName)
+                    .font(.title)
+                Text(item.description)
+                    .font(.subheadline)
+                HStack {
+                    Image(systemName: "star.fill")
+                    Text("\(item.stars)")
+                        .font(.body)
+                }
+            }.padding()
+            Spacer()
+        }
     }
 }
 

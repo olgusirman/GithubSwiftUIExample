@@ -33,7 +33,9 @@ public struct GithubItem: Codable {
     public let language: String?
     public let forks, openIssues, watchers: Int?
     public let score: Double
- 
+    public let stars: Int
+    public let description: String
+
     enum CodingKeys: String, CodingKey {
         case id
         case fullName = "full_name"
@@ -43,6 +45,8 @@ public struct GithubItem: Codable {
         case openIssues = "open_issues"
         case watchers
         case score
+        case stars = "stargazers_count"
+        case description
     }
     
     public init(id: Int, fullName: String, owner: GithubOwner) {
@@ -54,6 +58,8 @@ public struct GithubItem: Codable {
         self.openIssues = nil
         self.watchers = nil
         self.score = 0.0
+        self.stars = 0
+        self.description = ""
     }
     
 }

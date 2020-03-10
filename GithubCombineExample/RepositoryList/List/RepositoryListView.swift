@@ -18,33 +18,44 @@ struct RepositoryListView: View {
         NavigationView {
             ZStack {
                 VStack {
-                    ZStack {
+                    ZStack (alignment: .trailing) {
                         SearchBar(text: $viewModel.repositoryName)
-                        ActivityIndicatorView(isRefreshing: $viewModel.isSearching)
+                        ActivityIndicatorView(isRefreshing: $viewModel.isSearching).offset(x: -40, y: 0)
                     }
+                    Picker(selection: $viewModel.sortType, label: Text("Sort Type")) {
+                        ForEach(GetRepositoriesRequestModel.Sort.allCases) { index in
+                            Text("\(index.name)")
+                        }
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding()
+                    
                     List (viewModel.repositories) { repository in
                         
                         ZStack {
                             if self.viewModel.repositories.isLastItem(repository) && !self.viewModel.isLastItemFetched {
-                                ActivityIndicatorView(isRefreshing: .constant(true))
+                                HStack {
+                                    Spacer()
+                                    ActivityIndicatorView(isRefreshing: .constant(true))
+                                    Spacer()
+                                }
+                                
                             } else {
                                 NavigationLink(destination: RepositoryDetailView(item: repository)) {
                                     RepositoryCellView(item: repository)
                                 }
                             }
                         }.onAppear {
-                            //if self.viewModel.repositories.isLastItem(repository) {
                             self.viewModel.fetchMoreRepositories(repository)
-                            //}
                         }
                         
                     }
                     .resignKeyboardOnDragGesture()
-                        .navigationBarTitle("Repositories")
-                        .navigationBarItems( trailing:
-                            Button(action: { self.presentProfile() }) {
-                                userManager.isUserLoggedIn ? Image(systemName: "person.fill") : Image(systemName: "person")
-                            }
+                    .navigationBarTitle("Repositories")
+                    .navigationBarItems( trailing:
+                        Button(action: { self.presentProfile() }) {
+                            userManager.isUserLoggedIn ? Image(systemName: "person.fill") : Image(systemName: "person")
+                        }
                     )
                     
                 }
@@ -53,10 +64,10 @@ struct RepositoryListView: View {
                         self.userManager.getUserData()
                     }
                 }
-//                HUDView(imageType: .clockwise)
-//                    .opacity(viewModel.isSearching ? 1.0 : 0)
-//                    .rotationEffect(.init(degrees: viewModel.isSearching ? 180 : 0))
-//                    .animation(Animation.easeOut(duration: 1).repeatForever())
+                //                HUDView(imageType: .clockwise)
+                //                    .opacity(viewModel.isSearching ? 1.0 : 0)
+                //                    .rotationEffect(.init(degrees: viewModel.isSearching ? 180 : 0))
+                //                    .animation(Animation.easeOut(duration: 1).repeatForever())
             }
         }
     }
